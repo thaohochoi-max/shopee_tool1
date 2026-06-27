@@ -37,13 +37,19 @@ async function handleUpdate(update) {
   }
 }
 
+// Webhook mode: Vercel/cloud gọi hàm này khi Telegram gửi update
+async function handleWebhook(update) {
+  await handleUpdate(update).catch(console.error);
+}
+
+// Polling mode: chạy local
 async function startPolling() {
   if (!TOKEN) { console.warn('[Telegram] Chưa có TELEGRAM_BOT_TOKEN'); return; }
   try {
     const { data } = await axios.get(`${API}/getMe`);
     console.log(`[Telegram] @${data.result.username} đã kết nối ✅`);
   } catch (err) { console.error('[Telegram] Token lỗi:', err.message); return; }
-  console.log('[Telegram] Đang lắng nghe...');
+  console.log('[Telegram] Đang lắng nghe (polling)...');
   while (true) {
     try {
       const { data } = await axios.get(`${API}/getUpdates`, { params: { offset: lastUpdateId+1, timeout:30 }, timeout: 35000 });
@@ -54,4 +60,15 @@ async function startPolling() {
   }
 }
 
-module.exports = { startPolling };
+async function registerWebhook(webhookUrl) {
+  if (!TOKEN) return;
+  const { data } = await axios.post(`${API}/setWebhook`, { url: `${webhookUrl}/webhook/telegram` });
+  console.log('[Telegram] Webhook đăng ký:', data.description);
+}
+
+async function deleteWebhook() {
+  if (!TOKEN) return;
+  await axios.post(`${API}/deleteWebhook`);
+}
+
+module.exports = { startPolling, handleWebhook, registerWebhook, deleteWebhook };

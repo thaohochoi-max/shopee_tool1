@@ -9,6 +9,19 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
 
 const { extractShopeeUrl, buildAffiliateLink } = require('./services/shopeeAffiliate');
+const { handleWebhook } = require('./services/telegramBot');
+
+// Health check
+app.get('/health', (_, res) => res.json({ ok: true, time: new Date().toISOString() }));
+
+// Telegram Webhook (dùng trên Vercel/cloud)
+app.post('/webhook/telegram', async (req, res) => {
+  res.json({ ok: true });
+  if (req.body) await handleWebhook(req.body).catch(console.error);
+});
+
+// Facebook Messenger webhook
+app.use('/webhook/facebook', require('./routes/facebook'));
 
 // Convert link Shopee → affiliate
 app.post('/api/convert', (req, res) => {
@@ -18,9 +31,6 @@ app.post('/api/convert', (req, res) => {
   if (!originUrl) return res.status(400).json({ success:false, message:'Link không hợp lệ.' });
   res.json({ success:true, data: buildAffiliateLink(originUrl, subId||null) });
 });
-
-// Facebook Messenger webhook
-app.use('/webhook/facebook', require('./routes/facebook'));
 
 // Admin API
 app.post('/admin/order', (req, res) => {
@@ -45,11 +55,14 @@ app.patch('/admin/withdrawals/:id/complete', (req, res) => {
   res.json({ ok:true });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Server: http://localhost:${PORT}`);
-  console.log(`🔗 Facebook webhook: /webhook/facebook`);
-});
+// Chạy local: dùng polling
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`✅ Server: http://localhost:${PORT}`);
+  });
+  require('./services/telegramBot').startPolling();
+}
 
-// Telegram Bot
-require('./services/telegramBot').startPolling();
+// Vercel cần export app
+module.exports = app;

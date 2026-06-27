@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "backend/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "SHOPEE_AFFILIATE_ID": "17332610461",
+    "SHOPEE_SUB_ID": "default",
+    "FB_VERIFY_TOKEN": "shopee_webhook_2026",
+    "FB_PAGE_ID": "61590774189281"
+  }
+}
