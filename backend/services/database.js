@@ -3,7 +3,10 @@
 const fs   = require('fs');
 const path = require('path');
 
-const DB_FILE = path.join(__dirname, '../data/db.json');
+// Vercel filesystem is read-only except /tmp
+const DB_FILE = process.env.VERCEL
+  ? '/tmp/db.json'
+  : path.join(__dirname, '../data/db.json');
 
 const BANK_ALIASES = {
   mbbank:'MB Bank', mb:'MB Bank', vcb:'Vietcombank', vietcombank:'Vietcombank',
