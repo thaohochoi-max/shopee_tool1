@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: shopee-cashback
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SHOPEE_AFFILIATE_ID
+        value: 17332610461
+      - key: SHOPEE_SUB_ID
+        value: default
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: FB_PAGE_ACCESS_TOKEN
+        sync: false
+      - key: FB_VERIFY_TOKEN
+        value: shopee_webhook_2026
+      - key: FB_PAGE_ID
+        value: "61590774189281"
+      - key: ADMIN_SECRET
+        sync: false
