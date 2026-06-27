@@ -16,8 +16,8 @@ app.get('/health', (_, res) => res.json({ ok: true, time: new Date().toISOString
 
 // Telegram Webhook (dùng trên Vercel/cloud)
 app.post('/webhook/telegram', async (req, res) => {
-  res.json({ ok: true });
   if (req.body) await handleWebhook(req.body).catch(console.error);
+  res.json({ ok: true });
 });
 
 // Facebook Messenger webhook
